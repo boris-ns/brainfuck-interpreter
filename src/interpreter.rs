@@ -1,7 +1,18 @@
+use std::io::{self, Write};
 use std::collections::LinkedList;
 
 // TODO: Maybe we can add this to be a parameter from command line
 const MEMORY_CELL_SIZE: usize = 30000;
+
+fn get_input() -> u8 {
+    println!("");
+    let mut buffer = String::new();
+    buffer.clear();
+    io::stdout().flush();
+    io::stdin().read_line(&mut buffer).expect("Failed to read line from console");
+
+    return buffer.trim().parse::<u8>().unwrap();
+}
 
 pub struct Interpreter {
     memory_cells: [i8; MEMORY_CELL_SIZE],
@@ -24,7 +35,7 @@ impl Interpreter {
             if i >= tokens.len() {
                 break;
             }
-            
+
             match tokens[i] {
                 // Shift pointer to the right
                 '>' => { self.inc_pointer(); }
@@ -54,12 +65,12 @@ impl Interpreter {
                 '.' => { print!("{}", (self.memory_cells[self.pointer] as u8) as char); }
 
                 // Get ASCII
-                ',' => {}
+                ',' => { self.write_to_cell(); }
 
                 // Ignore everything else
                 _ => {}
             }
-        
+            
             i += 1;
         }
     }
@@ -74,5 +85,10 @@ impl Interpreter {
         if self.pointer != 0 {
             self.pointer -= 1;
         }
+    }
+
+    fn write_to_cell(&mut self) {
+        let value: u8 = get_input();
+        self.memory_cells[self.pointer] = value as i8;
     }
 }
