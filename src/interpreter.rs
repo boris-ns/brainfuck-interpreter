@@ -1,8 +1,16 @@
 use std::io::{self, Write};
 use std::collections::LinkedList;
 
-// TODO: Maybe we can add this to be a parameter from command line
 const MEMORY_CELL_SIZE: usize = 30000;
+
+fn get_input_string() -> String {
+    let mut buffer = String::new();
+    buffer.clear();
+    io::stdout().flush();
+    io::stdin().read_line(&mut buffer).expect("Failed to read line from console");
+
+    return String::from(buffer.trim());
+}
 
 fn get_input() -> u8 {
     println!("");
@@ -27,7 +35,28 @@ impl Interpreter {
         }
     }
 
-    pub fn run(&mut self, tokens: Vec<char>) {
+    pub fn run_interactive(&mut self) {
+        loop {
+            print!("# ");
+            let command: String = get_input_string();
+
+            match command.as_str() {
+                "reset" => { self.reset(); }
+                "exit"  => { return; }
+                _       => { 
+                    self.run(command); 
+                    println!("");
+                }
+            };
+        }
+    }
+
+    pub fn run(&mut self, source_code: String) {
+        let tokens = source_code.chars().collect();
+        self.interpret(tokens);
+    }
+
+    fn interpret(&mut self, tokens: Vec<char>) {
         let mut i = 0;
         let mut loop_stack: LinkedList<usize> = LinkedList::new();
 
@@ -90,5 +119,10 @@ impl Interpreter {
     fn write_to_cell(&mut self) {
         let value: u8 = get_input();
         self.memory_cells[self.pointer] = value as i8;
+    }
+
+    fn reset(&mut self) {
+        self.memory_cells = [0; MEMORY_CELL_SIZE];
+        self.pointer = 0;
     }
 }
